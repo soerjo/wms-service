@@ -70,6 +70,28 @@ class EnvironmentVariables {
   @IsString()
   @IsOptional()
   WMS_DEV_EVENT_ENDPOINT: string = '0';
+
+  // --- UMS JWT integration (RS256 public key verification) ---
+  @IsString()
+  @IsOptional()
+  UMS_JWT_PUBLIC_KEY?: string;
+
+  @IsString()
+  @IsOptional()
+  UMS_JWT_PUBLIC_KEY_PATH?: string;
+
+  // --- Kafka integration (pos order events) ---
+  @IsString()
+  @IsOptional()
+  KAFKA_BROKERS?: string;
+
+  @IsString()
+  @IsOptional()
+  KAFKA_CONSUMER_GROUP_ID?: string;
+
+  @IsString()
+  @IsOptional()
+  KAFKA_CONSUMER_DISABLED?: string;
 }
 
 export function validate(config: Record<string, unknown>) {
