@@ -5,6 +5,7 @@ import { InventoryRepository } from './inventory.repository.js';
 import { OnHandQueryDto } from './dto/on-hand-query.dto.js';
 import { LedgerQueryDto } from './dto/ledger-query.dto.js';
 import { LowStockQueryDto } from './dto/low-stock-query.dto.js';
+import { InventorySummaryQueryDto } from './dto/inventory-summary-query.dto.js';
 
 export interface RecordStockMovementParams {
   warehouseId: string;
@@ -196,5 +197,71 @@ export class InventoryService {
     const threshold =
       query.threshold !== undefined ? Number(query.threshold) : 10;
     return this.inventoryRepository.findLowStock(query.warehouseId, threshold);
+  }
+
+  /**
+   * Dashboard stock summary per warehouse:
+   * total QOH, SKU count, low-stock count (QOH <= threshold), and
+   * expire-soon count (FEFO, expiryDate within TTL window).
+   * Uses grouped aggregates (no N+1).
+   * Note: total value (QOH x cost) is reported as null until a unit-cost
+   * source exists in the schema (cost is not stored on ProductStock).
+   */
+  async getInventorySummary(query: InventorySummaryQueryDto) {
+    const expireSoonDays = query.expireSoonDays ?? 90;
+    const lowStockThreshold = query.lowStockThreshold ?? 10;
+    const expireSoonCutoff = new Date(
+      Date.now() + expireSoonDays * 24 * 60 * 60 * 1000,
+    );
+
+    const [baseAgg, lowAgg, expireAgg, warehouses] = await Promise.all([
+      this.inventoryRepository.aggregateSummaryPerWarehouse({
+        warehouseId: query.warehouseId,
+        lowStockThreshold,
+        expireSoonCutoff,
+      }),
+      this.inventoryRepository.countLowStockPerWarehouse({
+        warehouseId: query.warehouseId,
+        lowStockThreshold,
+      }),
+      this.inventoryRepository.countExpireSoonPerWarehouse({
+        warehouseId: query.warehouseId,
+        expireSoonCutoff,
+      }),
+      this.prisma.warehouse.findMany({
+        where: {
+          id: query.warehouseId,
+          isActive: true,
+        },
+        select: { id: true, code: true, name: true },
+      }),
+    ]);
+
+    const baseByWarehouse = new Map(baseAgg.map((r) => [r.warehouseId, r]));
+    const lowByWarehouse = new Map(lowAgg.map((r) => [r.warehouseId, r]));
+    const expireByWarehouse = new Map(
+      expireAgg.map((r) => [r.warehouseId, r]),
+    );
+
+    return warehouses.map((w) => {
+      const base = baseByWarehouse.get(w.id);
+      const low = lowByWarehouse.get(w.id);
+      const expire = expireByWarehouse.get(w.id);
+      const totalQoh = base?._sum?.quantityOnHand
+        ? new Prisma.Decimal(base._sum.quantityOnHand)
+        : new Prisma.Decimal(0);
+      return {
+        warehouseId: w.id,
+        warehouseCode: w.code,
+        warehouseName: w.name,
+        totalQuantityOnHand: totalQoh.toNumber(),
+        totalValue: null as number | null,
+        skuCount: base?._count?.sku ?? 0,
+        lowStockCount: low?._count?.sku ?? 0,
+        expireSoonCount: expire?._count?.sku ?? 0,
+        lowStockThreshold,
+        expireSoonDays,
+      };
+    });
   }
 }

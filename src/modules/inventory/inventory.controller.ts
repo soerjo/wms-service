@@ -4,6 +4,7 @@ import { InventoryService } from './inventory.service.js';
 import { OnHandQueryDto } from './dto/on-hand-query.dto.js';
 import { LedgerQueryDto } from './dto/ledger-query.dto.js';
 import { LowStockQueryDto } from './dto/low-stock-query.dto.js';
+import { InventorySummaryQueryDto } from './dto/inventory-summary-query.dto.js';
 
 @ApiTags('Inventory')
 @ApiBearerAuth()
@@ -24,5 +25,10 @@ export class InventoryController {
   @Get('low-stock')
   async getLowStock(@Query() query: LowStockQueryDto) {
     return this.inventoryService.getLowStock(query);
+  }
+
+  @Get('summary')
+  async getInventorySummary(@Query() query: InventorySummaryQueryDto) {
+    return this.inventoryService.getInventorySummary(query);
   }
 }
