@@ -39,11 +39,21 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!payload.sub) {
       throw new UnauthorizedException('Invalid token payload');
     }
-    // Local user record is kept as data enrichment; token validity is decided by UMS RS256 signature.
-    const user = await this.authService.validateUserById(payload.sub);
-    if (!user) {
-      throw new UnauthorizedException('User not found in WMS local registry');
+    try {
+      const local = await this.authService.validateUserById(payload.sub);
+      if (local) {
+        return local;
+      }
+    } catch {
+      // Local user record is optional data enrichment; token validity is decided by UMS RS256 signature.
     }
-    return user;
+    return {
+      id: payload.sub,
+      email: payload.email ?? '',
+      firstName: null,
+      lastName: null,
+      role: 'USER',
+      organizationId: '',
+    };
   }
 }
