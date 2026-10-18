@@ -20,9 +20,11 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
 import { RolesGuard } from './common/guards/roles.guard.js';
 import { loggerConfig } from './config/logger.config.js';
 import { validate } from './config/env.validation.js';
+import { InterServiceHttpClientModule } from './common/http-client/http-client.module.js';
 
 @Module({
   imports: [
+    InterServiceHttpClientModule,
     ConfigModule.forRoot({ isGlobal: true, validate }),
     WinstonModule.forRoot(loggerConfig),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 10 }]),
