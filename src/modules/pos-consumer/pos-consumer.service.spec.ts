@@ -31,6 +31,18 @@ describe('PosConsumerService', () => {
     storageBin: {
       findFirst: jest.fn(),
     },
+    warehouse: {
+      findFirst: jest
+        .fn()
+        .mockImplementation(
+          (args?: {
+            where?: { OR?: Array<{ id?: string; code?: string }> };
+          }) => {
+            const id = args?.where?.OR?.[0]?.id || 'wh-1';
+            return Promise.resolve({ id, code: 'WH-001' });
+          },
+        ),
+    },
     $transaction: jest.fn((cb: (tx: typeof mockTx) => unknown) => cb(mockTx)),
   };
 

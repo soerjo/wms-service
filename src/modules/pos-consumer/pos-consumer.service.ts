@@ -36,8 +36,28 @@ export class PosConsumerService {
     }
   }
 
+  private async resolveWarehouseId(rawId?: string): Promise<string> {
+    if (!rawId) {
+      const defaultWh = await this.prisma.warehouse.findFirst({
+        where: { isActive: true },
+        orderBy: { createdAt: 'asc' },
+      });
+      return defaultWh?.id || 'default-warehouse';
+    }
+    const wh = await this.prisma.warehouse.findFirst({
+      where: {
+        OR: [{ id: rawId }, { code: rawId }],
+      },
+    });
+    return wh ? wh.id : rawId;
+  }
+
   private async handleOrderCompleted(payload: PosEventPayload) {
-    const { eventId, warehouseId, items } = payload;
+    const rawWhId =
+      payload.warehouseId ||
+      (payload as unknown as { storeId?: string }).storeId;
+    const warehouseId = await this.resolveWarehouseId(rawWhId);
+    const { eventId, items } = payload;
 
     await this.prisma.$transaction(async (tx) => {
       for (const item of items) {
@@ -99,7 +119,11 @@ export class PosConsumerService {
   }
 
   private async handleOrderRefunded(payload: PosEventPayload) {
-    const { eventId, warehouseId, items } = payload;
+    const rawWhId =
+      payload.warehouseId ||
+      (payload as unknown as { storeId?: string }).storeId;
+    const warehouseId = await this.resolveWarehouseId(rawWhId);
+    const { eventId, items } = payload;
 
     await this.prisma.$transaction(async (tx) => {
       for (const item of items) {

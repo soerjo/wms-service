@@ -65,6 +65,27 @@ export class InventoryRepository {
     });
   }
 
+  async findExpiringSoon(
+    warehouseId?: string,
+    cutoffDate: Date = new Date(Date.now() + 90 * 86400000),
+  ) {
+    return this.prisma.productStock.findMany({
+      where: {
+        warehouseId,
+        quantityOnHand: { gt: 0 },
+        expiryDate: {
+          not: null,
+          lte: cutoffDate,
+        },
+      },
+      include: {
+        warehouse: true,
+        bin: true,
+      },
+      orderBy: { expiryDate: 'asc' },
+    });
+  }
+
   async findStockForAllocation(
     warehouseId: string,
     sku: string,

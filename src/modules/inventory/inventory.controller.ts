@@ -1,5 +1,10 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { InventoryService } from './inventory.service.js';
 import { OnHandQueryDto } from './dto/on-hand-query.dto.js';
 import { LedgerQueryDto } from './dto/ledger-query.dto.js';
@@ -30,5 +35,19 @@ export class InventoryController {
   @Get('summary')
   async getInventorySummary(@Query() query: InventorySummaryQueryDto) {
     return this.inventoryService.getInventorySummary(query);
+  }
+
+  @Get('expiring-soon')
+  @ApiOperation({ summary: 'List batches expiring soon ordered by FEFO' })
+  @ApiQuery({ name: 'warehouseId', required: false, type: String })
+  @ApiQuery({ name: 'days', required: false, type: Number })
+  async getExpiringSoon(
+    @Query('warehouseId') warehouseId?: string,
+    @Query('days') days?: string,
+  ) {
+    return this.inventoryService.getExpiringSoon({
+      warehouseId,
+      days: days ? Number(days) : undefined,
+    });
   }
 }
