@@ -34,6 +34,7 @@ describe('InventoryService', () => {
             findLedger: jest.fn(),
             findLowStock: jest.fn(),
             findStockForAllocation: jest.fn(),
+            findExpiringSoon: jest.fn(),
           },
         },
         {
@@ -188,6 +189,30 @@ describe('InventoryService', () => {
       await expect(
         service.allocateStock('wh-1', 'SKU-001', 25, 'FIFO'),
       ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('getExpiringSoon', () => {
+    it('queries inventory expiring soon within cutoff window', async () => {
+      const mockExpiring = [
+        {
+          sku: 'SKU-001',
+          quantityOnHand: 20,
+          expiryDate: new Date(Date.now() + 10 * 86400000),
+        },
+      ];
+
+      const spy = jest
+        .spyOn(inventoryRepository, 'findExpiringSoon')
+        .mockResolvedValue(mockExpiring as any);
+
+      const result = await service.getExpiringSoon({
+        warehouseId: 'wh-1',
+        days: 30,
+      });
+
+      expect(result).toEqual(mockExpiring);
+      expect(spy).toHaveBeenCalledWith('wh-1', expect.any(Date));
     });
   });
 });

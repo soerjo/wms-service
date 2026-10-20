@@ -262,4 +262,13 @@ export class InventoryService {
       };
     });
   }
+
+  async getExpiringSoon(query: { warehouseId?: string; days?: number }) {
+    const days = query.days && query.days > 0 ? query.days : 90;
+    const cutoffDate = new Date(Date.now() + days * 86400000);
+    return this.inventoryRepository.findExpiringSoon(
+      query.warehouseId,
+      cutoffDate,
+    );
+  }
 }

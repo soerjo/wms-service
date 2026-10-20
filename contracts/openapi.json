@@ -1,0 +1,2068 @@
+{
+  "components": {
+    "schemas": {
+      "AdjustmentItemDto": {
+        "properties": {
+          "adjustedQuantity": {
+            "example": 95,
+            "type": "number"
+          },
+          "batchNumber": {
+            "default": "-",
+            "example": "BATCH-001",
+            "type": "string"
+          },
+          "binId": {
+            "example": "bin-uuid",
+            "type": "string"
+          },
+          "currentQuantity": {
+            "example": 100,
+            "type": "number"
+          },
+          "expiryDate": {
+            "example": "2026-12-31T00:00:00.000Z",
+            "type": "string"
+          },
+          "productId": {
+            "example": "prod-uuid",
+            "type": "string"
+          },
+          "sku": {
+            "example": "SKU-001",
+            "type": "string"
+          }
+        },
+        "required": [
+          "binId",
+          "productId",
+          "sku",
+          "currentQuantity",
+          "adjustedQuantity"
+        ],
+        "type": "object"
+      },
+      "ApproveAdjustmentDto": {
+        "properties": {
+          "approverId": {
+            "example": "admin-user-uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "approverId"
+        ],
+        "type": "object"
+      },
+      "BinTransferDto": {
+        "properties": {
+          "batchNumber": {
+            "default": "-",
+            "example": "BATCH-001",
+            "type": "string"
+          },
+          "expiryDate": {
+            "example": "2026-12-31T00:00:00.000Z",
+            "type": "string"
+          },
+          "productId": {
+            "example": "prod-uuid",
+            "type": "string"
+          },
+          "quantity": {
+            "example": 10,
+            "type": "number"
+          },
+          "sku": {
+            "example": "SKU-001",
+            "type": "string"
+          },
+          "sourceBinId": {
+            "example": "source-bin-uuid",
+            "type": "string"
+          },
+          "targetBinId": {
+            "example": "target-bin-uuid",
+            "type": "string"
+          },
+          "warehouseId": {
+            "example": "warehouse-uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "warehouseId",
+          "sourceBinId",
+          "targetBinId",
+          "productId",
+          "sku",
+          "quantity"
+        ],
+        "type": "object"
+      },
+      "ChangePasswordDto": {
+        "properties": {
+          "currentPassword": {
+            "example": "currentPassword123",
+            "type": "string"
+          },
+          "newPassword": {
+            "example": "newSecurePassword123",
+            "minLength": 8,
+            "type": "string"
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ],
+        "type": "object"
+      },
+      "CreateAdjustmentDto": {
+        "properties": {
+          "adjustmentNo": {
+            "example": "ADJ-001",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AdjustmentItemDto"
+            },
+            "type": "array"
+          },
+          "notes": {
+            "example": "Monthly cycle count adjustment",
+            "type": "string"
+          },
+          "reason": {
+            "enum": [
+              "SHRINKAGE",
+              "EXPIRED",
+              "SAMPLING",
+              "DAMAGE",
+              "OTHER"
+            ],
+            "example": "SHRINKAGE",
+            "type": "string"
+          },
+          "requestedValue": {
+            "example": 50,
+            "type": "number"
+          },
+          "warehouseId": {
+            "example": "warehouse-uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "adjustmentNo",
+          "warehouseId",
+          "reason",
+          "items"
+        ],
+        "type": "object"
+      },
+      "CreateOrganizationDto": {
+        "properties": {
+          "description": {
+            "example": "A leading technology company",
+            "type": "string"
+          },
+          "logoUrl": {
+            "example": "https://acme.com/logo.png",
+            "type": "string"
+          },
+          "name": {
+            "example": "Acme Corporation",
+            "type": "string"
+          },
+          "slug": {
+            "example": "acme-corp",
+            "type": "string"
+          },
+          "website": {
+            "example": "https://acme.com",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "slug"
+        ],
+        "type": "object"
+      },
+      "CreateReceiptDto": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/InboundItemDto"
+            },
+            "type": "array"
+          },
+          "receivingBinId": {
+            "example": "receiving-bin-uuid",
+            "type": "string"
+          },
+          "referencePoNo": {
+            "example": "PO-REF-001",
+            "type": "string"
+          },
+          "shipmentNo": {
+            "example": "PO-SHIP-001",
+            "type": "string"
+          },
+          "supplierId": {
+            "example": "supplier-uuid",
+            "type": "string"
+          },
+          "warehouseId": {
+            "example": "warehouse-uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "shipmentNo",
+          "warehouseId",
+          "receivingBinId",
+          "items"
+        ],
+        "type": "object"
+      },
+      "CreateStorageBinDto": {
+        "properties": {
+          "aisle": {
+            "example": "A01",
+            "type": "string"
+          },
+          "binCode": {
+            "example": "A01-B02-C03",
+            "type": "string"
+          },
+          "rack": {
+            "example": "B02",
+            "type": "string"
+          },
+          "status": {
+            "default": "ACTIVE",
+            "enum": [
+              "ACTIVE",
+              "QUARANTINE",
+              "LOCKED"
+            ],
+            "type": "string"
+          },
+          "zoneName": {
+            "example": "ZONE-A",
+            "type": "string"
+          }
+        },
+        "required": [
+          "binCode",
+          "zoneName"
+        ],
+        "type": "object"
+      },
+      "CreateTransferDto": {
+        "properties": {
+          "destinationWarehouseId": {
+            "example": "warehouse-dest-uuid",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TransferItemDto"
+            },
+            "type": "array"
+          },
+          "originWarehouseId": {
+            "example": "warehouse-origin-uuid",
+            "type": "string"
+          },
+          "transferNo": {
+            "example": "TR-001",
+            "type": "string"
+          }
+        },
+        "required": [
+          "transferNo",
+          "originWarehouseId",
+          "destinationWarehouseId",
+          "items"
+        ],
+        "type": "object"
+      },
+      "CreateWarehouseDto": {
+        "properties": {
+          "address": {
+            "example": "Jl. Raya Industri No. 1, Jakarta",
+            "type": "string"
+          },
+          "code": {
+            "example": "WH-JKT-01",
+            "type": "string"
+          },
+          "isActive": {
+            "default": true,
+            "example": true,
+            "type": "boolean"
+          },
+          "name": {
+            "example": "Jakarta Central DC",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "CENTRAL_DC",
+              "STORE_OUTLET",
+              "TRANSIT"
+            ],
+            "example": "CENTRAL_DC",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "type"
+        ],
+        "type": "object"
+      },
+      "InboundItemDto": {
+        "properties": {
+          "batchNumber": {
+            "default": "-",
+            "example": "BATCH-001",
+            "type": "string"
+          },
+          "expiryDate": {
+            "example": "2026-12-31T00:00:00.000Z",
+            "type": "string"
+          },
+          "productId": {
+            "example": "prod-uuid",
+            "type": "string"
+          },
+          "quantity": {
+            "example": 100,
+            "type": "number"
+          },
+          "sku": {
+            "example": "SKU-001",
+            "type": "string"
+          }
+        },
+        "required": [
+          "productId",
+          "sku",
+          "quantity"
+        ],
+        "type": "object"
+      },
+      "LoginDto": {
+        "properties": {
+          "email": {
+            "example": "john@example.com",
+            "type": "string"
+          },
+          "password": {
+            "example": "password123",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "type": "object"
+      },
+      "PosEventDto": {
+        "properties": {
+          "eventId": {
+            "example": "evt-uuid-1234",
+            "type": "string"
+          },
+          "eventType": {
+            "enum": [
+              "ORDER_COMPLETED",
+              "ORDER_REFUNDED"
+            ],
+            "example": "ORDER_COMPLETED",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PosOrderItemDto"
+            },
+            "type": "array"
+          },
+          "sourceService": {
+            "example": "pos-service",
+            "type": "string"
+          },
+          "warehouseId": {
+            "example": "wh-uuid-1",
+            "type": "string"
+          }
+        },
+        "required": [
+          "eventId",
+          "eventType",
+          "warehouseId",
+          "items"
+        ],
+        "type": "object"
+      },
+      "PosOrderItemDto": {
+        "properties": {
+          "batchNumber": {
+            "example": "BATCH-001",
+            "type": "string"
+          },
+          "expiryDate": {
+            "example": "2027-12-31T00:00:00.000Z",
+            "type": "object"
+          },
+          "productId": {
+            "example": "prod-uuid-1",
+            "type": "string"
+          },
+          "quantity": {
+            "example": 2,
+            "type": "number"
+          },
+          "sku": {
+            "example": "SKU-TEST-1",
+            "type": "string"
+          }
+        },
+        "required": [
+          "productId",
+          "sku",
+          "quantity"
+        ],
+        "type": "object"
+      },
+      "PutawayDto": {
+        "properties": {
+          "itemId": {
+            "example": "item-uuid",
+            "type": "string"
+          },
+          "quantity": {
+            "example": 50,
+            "type": "number"
+          },
+          "shipmentId": {
+            "example": "shipment-uuid",
+            "type": "string"
+          },
+          "sourceBinId": {
+            "example": "source-bin-uuid",
+            "type": "string"
+          },
+          "targetBinId": {
+            "example": "target-bin-uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "shipmentId",
+          "itemId",
+          "sourceBinId",
+          "targetBinId",
+          "quantity"
+        ],
+        "type": "object"
+      },
+      "RefreshTokenDto": {
+        "properties": {
+          "refreshToken": {
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "type": "string"
+          }
+        },
+        "required": [
+          "refreshToken"
+        ],
+        "type": "object"
+      },
+      "RegisterDto": {
+        "properties": {
+          "email": {
+            "example": "john@example.com",
+            "type": "string"
+          },
+          "firstName": {
+            "example": "John",
+            "type": "string"
+          },
+          "lastName": {
+            "example": "Doe",
+            "type": "string"
+          },
+          "password": {
+            "example": "password123",
+            "minLength": 8,
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "type": "object"
+      },
+      "SetPasswordDto": {
+        "properties": {
+          "newPassword": {
+            "example": "newSecurePassword123",
+            "minLength": 8,
+            "type": "string"
+          }
+        },
+        "required": [
+          "newPassword"
+        ],
+        "type": "object"
+      },
+      "TransferItemDto": {
+        "properties": {
+          "batchNumber": {
+            "default": "-",
+            "example": "BATCH-001",
+            "type": "string"
+          },
+          "productId": {
+            "example": "prod-uuid",
+            "type": "string"
+          },
+          "quantity": {
+            "example": 25,
+            "type": "number"
+          },
+          "sku": {
+            "example": "SKU-001",
+            "type": "string"
+          }
+        },
+        "required": [
+          "productId",
+          "sku",
+          "quantity"
+        ],
+        "type": "object"
+      },
+      "UpdateBinStatusDto": {
+        "properties": {
+          "status": {
+            "enum": [
+              "ACTIVE",
+              "QUARANTINE",
+              "LOCKED"
+            ],
+            "example": "ACTIVE",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "type": "object"
+      },
+      "UpdateOrganizationDto": {
+        "properties": {
+          "description": {
+            "example": "A leading technology company",
+            "type": "string"
+          },
+          "logoUrl": {
+            "example": "https://acme.com/logo.png",
+            "type": "string"
+          },
+          "name": {
+            "example": "Acme Corporation",
+            "type": "string"
+          },
+          "slug": {
+            "example": "acme-corp",
+            "type": "string"
+          },
+          "website": {
+            "example": "https://acme.com",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "UpdateUserDto": {
+        "properties": {
+          "email": {
+            "example": "john@example.com",
+            "type": "string"
+          },
+          "firstName": {
+            "example": "John",
+            "type": "string"
+          },
+          "lastName": {
+            "example": "Doe",
+            "type": "string"
+          },
+          "organizationId": {
+            "example": "uuid-of-organization",
+            "type": "string"
+          },
+          "password": {
+            "example": "password123",
+            "minLength": 8,
+            "type": "string"
+          },
+          "roleId": {
+            "example": "uuid-of-role",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "UpdateWarehouseDto": {
+        "properties": {
+          "address": {
+            "example": "Jl. Raya Industri No. 1, Jakarta",
+            "type": "string"
+          },
+          "code": {
+            "example": "WH-JKT-01",
+            "type": "string"
+          },
+          "isActive": {
+            "default": true,
+            "example": true,
+            "type": "boolean"
+          },
+          "name": {
+            "example": "Jakarta Central DC",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "CENTRAL_DC",
+              "STORE_OUTLET",
+              "TRANSIT"
+            ],
+            "example": "CENTRAL_DC",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "bearer": {
+        "bearerFormat": "JWT",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "contact": {},
+    "description": "Warehouse Management System API documentation",
+    "title": "WMS API",
+    "version": "1.0.0"
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/auth/change-password": {
+      "post": {
+        "operationId": "AuthController_changePassword",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/google": {
+      "get": {
+        "operationId": "AuthController_googleAuth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/google/callback": {
+      "get": {
+        "operationId": "AuthController_googleAuthRedirect",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/refresh-token": {
+      "post": {
+        "operationId": "AuthController_refresh",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/set-password": {
+      "post": {
+        "operationId": "AuthController_setPassword",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetPasswordDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/verify-token": {
+      "get": {
+        "operationId": "AuthController_verifyToken",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "details": {
+                      "additionalProperties": {
+                        "additionalProperties": true,
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "status"
+                        ],
+                        "type": "object"
+                      },
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "error": {
+                      "additionalProperties": {
+                        "additionalProperties": true,
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "status"
+                        ],
+                        "type": "object"
+                      },
+                      "example": {},
+                      "nullable": true,
+                      "type": "object"
+                    },
+                    "info": {
+                      "additionalProperties": {
+                        "additionalProperties": true,
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "status"
+                        ],
+                        "type": "object"
+                      },
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "nullable": true,
+                      "type": "object"
+                    },
+                    "status": {
+                      "example": "ok",
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The Health Check is successful"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "details": {
+                      "additionalProperties": {
+                        "additionalProperties": true,
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "status"
+                        ],
+                        "type": "object"
+                      },
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        },
+                        "redis": {
+                          "message": "Could not connect",
+                          "status": "down"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "error": {
+                      "additionalProperties": {
+                        "additionalProperties": true,
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "status"
+                        ],
+                        "type": "object"
+                      },
+                      "example": {
+                        "redis": {
+                          "message": "Could not connect",
+                          "status": "down"
+                        }
+                      },
+                      "nullable": true,
+                      "type": "object"
+                    },
+                    "info": {
+                      "additionalProperties": {
+                        "additionalProperties": true,
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "status"
+                        ],
+                        "type": "object"
+                      },
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "nullable": true,
+                      "type": "object"
+                    },
+                    "status": {
+                      "example": "error",
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The Health Check is not successful"
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/api/organizations": {
+      "get": {
+        "operationId": "OrganizationsController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Organizations"
+        ]
+      },
+      "post": {
+        "operationId": "OrganizationsController_create",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrganizationDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Organizations"
+        ]
+      }
+    },
+    "/api/organizations/slug/{slug}": {
+      "get": {
+        "operationId": "OrganizationsController_findBySlug",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Organizations"
+        ]
+      }
+    },
+    "/api/organizations/{id}": {
+      "delete": {
+        "operationId": "OrganizationsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Organizations"
+        ]
+      },
+      "get": {
+        "operationId": "OrganizationsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Organizations"
+        ]
+      },
+      "patch": {
+        "operationId": "OrganizationsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrganizationDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Organizations"
+        ]
+      }
+    },
+    "/api/users": {
+      "get": {
+        "operationId": "UsersController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "operationId": "UsersController_getProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/users/{id}": {
+      "delete": {
+        "operationId": "UsersController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      },
+      "get": {
+        "operationId": "UsersController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      },
+      "patch": {
+        "operationId": "UsersController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/v1/bins/{id}": {
+      "patch": {
+        "operationId": "StorageBinsController_updateStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBinStatusDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Storage Bins"
+        ]
+      }
+    },
+    "/api/v1/dev/pos-event": {
+      "post": {
+        "operationId": "PosDevController_receiveEvent",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PosEventDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Simulate POS event (Order Completed / Refunded)",
+        "tags": [
+          "POS Dev & Events"
+        ]
+      }
+    },
+    "/api/v1/inbound/putaway": {
+      "post": {
+        "operationId": "InboundController_putaway",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PutawayDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Inbound Management"
+        ]
+      }
+    },
+    "/api/v1/inbound/receipts": {
+      "post": {
+        "operationId": "InboundController_createReceipt",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReceiptDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Inbound Management"
+        ]
+      }
+    },
+    "/api/v1/inventory/adjustments": {
+      "post": {
+        "operationId": "AdjustmentsController_create",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAdjustmentDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Stock Adjustments"
+        ]
+      }
+    },
+    "/api/v1/inventory/adjustments/{id}/approve": {
+      "post": {
+        "operationId": "AdjustmentsController_approve",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveAdjustmentDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Stock Adjustments"
+        ]
+      }
+    },
+    "/api/v1/inventory/expiring-soon": {
+      "get": {
+        "operationId": "InventoryController_getExpiringSoon",
+        "parameters": [
+          {
+            "name": "warehouseId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "days",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List batches expiring soon ordered by FEFO",
+        "tags": [
+          "Inventory"
+        ]
+      }
+    },
+    "/api/v1/inventory/ledger": {
+      "get": {
+        "operationId": "InventoryController_getLedger",
+        "parameters": [
+          {
+            "name": "warehouseId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "warehouse-uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sku",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "SKU-001",
+              "type": "string"
+            }
+          },
+          {
+            "name": "referenceType",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "INBOUND_PO",
+              "type": "string",
+              "enum": [
+                "POS_SALE",
+                "POS_REFUND",
+                "INBOUND_PO",
+                "TRANSFER_OUT",
+                "TRANSFER_IN",
+                "STOCK_ADJUSTMENT"
+              ]
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "2026-01-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "2026-12-31T23:59:59.999Z",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Inventory"
+        ]
+      }
+    },
+    "/api/v1/inventory/low-stock": {
+      "get": {
+        "operationId": "InventoryController_getLowStock",
+        "parameters": [
+          {
+            "name": "warehouseId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "warehouse-uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "threshold",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 10,
+              "example": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Inventory"
+        ]
+      }
+    },
+    "/api/v1/inventory/on-hand": {
+      "get": {
+        "operationId": "InventoryController_getOnHand",
+        "parameters": [
+          {
+            "name": "warehouseId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "warehouse-uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sku",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "SKU-001",
+              "type": "string"
+            }
+          },
+          {
+            "name": "batchNumber",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "BATCH-001",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Inventory"
+        ]
+      }
+    },
+    "/api/v1/inventory/summary": {
+      "get": {
+        "operationId": "InventoryController_getInventorySummary",
+        "parameters": [
+          {
+            "name": "warehouseId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by warehouse id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "expireSoonDays",
+            "required": false,
+            "in": "query",
+            "description": "Expire-soon window in days (FEFO TTL)",
+            "schema": {
+              "default": 90,
+              "type": "number"
+            }
+          },
+          {
+            "name": "lowStockThreshold",
+            "required": false,
+            "in": "query",
+            "description": "Low-stock threshold (QOH <= threshold)",
+            "schema": {
+              "default": 10,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Inventory"
+        ]
+      }
+    },
+    "/api/v1/transfers": {
+      "post": {
+        "operationId": "TransfersController_create",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTransferDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Stock Transfers"
+        ]
+      }
+    },
+    "/api/v1/transfers/bin-transfer": {
+      "post": {
+        "operationId": "TransfersController_binTransfer",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BinTransferDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Stock Transfers"
+        ]
+      }
+    },
+    "/api/v1/transfers/{id}/dispatch": {
+      "post": {
+        "operationId": "TransfersController_dispatch",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Stock Transfers"
+        ]
+      }
+    },
+    "/api/v1/transfers/{id}/receive": {
+      "post": {
+        "operationId": "TransfersController_receive",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Stock Transfers"
+        ]
+      }
+    },
+    "/api/v1/warehouses": {
+      "get": {
+        "operationId": "WarehousesController_findAll",
+        "parameters": [
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "CENTRAL_DC",
+              "type": "string",
+              "enum": [
+                "CENTRAL_DC",
+                "STORE_OUTLET",
+                "TRANSIT"
+              ]
+            }
+          },
+          {
+            "name": "isActive",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": true,
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Warehouses"
+        ]
+      },
+      "post": {
+        "operationId": "WarehousesController_create",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWarehouseDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Warehouses"
+        ]
+      }
+    },
+    "/api/v1/warehouses/{id}": {
+      "get": {
+        "operationId": "WarehousesController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Warehouses"
+        ]
+      },
+      "patch": {
+        "operationId": "WarehousesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWarehouseDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Warehouses"
+        ]
+      }
+    },
+    "/api/v1/warehouses/{warehouseId}/bins": {
+      "get": {
+        "operationId": "WarehouseBinsController_findAllByWarehouse",
+        "parameters": [
+          {
+            "name": "warehouseId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "ACTIVE",
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "QUARANTINE",
+                "LOCKED"
+              ]
+            }
+          },
+          {
+            "name": "zoneName",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "ZONE-A",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Storage Bins"
+        ]
+      },
+      "post": {
+        "operationId": "WarehouseBinsController_create",
+        "parameters": [
+          {
+            "name": "warehouseId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStorageBinDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Storage Bins"
+        ]
+      }
+    }
+  },
+  "servers": [],
+  "tags": []
+}

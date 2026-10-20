@@ -2,6 +2,16 @@ import { config } from 'dotenv';
 
 config({ path: '.env' });
 
+process.env.DATABASE_URL =
+  process.env.DATABASE_URL || 'postgresql://user:pass@localhost:5432/db';
+process.env.JWT_ACCESS_SECRET =
+  process.env.JWT_ACCESS_SECRET || 'test-jwt-access-secret-32-chars-long!';
+process.env.JWT_REFRESH_SECRET =
+  process.env.JWT_REFRESH_SECRET || 'test-jwt-refresh-secret-32-chars-long!';
+process.env.GOOGLE_CLIENT_ID =
+  process.env.GOOGLE_CLIENT_ID || 'dummy-google-client-id';
+process.env.GOOGLE_CLIENT_SECRET =
+  process.env.GOOGLE_CLIENT_SECRET || 'dummy-google-client-secret';
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET_KEY = 'test-jwt-secret';
 process.env.JWT_EXPIRATION_TIME = '1h';
