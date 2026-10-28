@@ -42,7 +42,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     try {
       const local = await this.authService.validateUserById(payload.sub);
       if (local) {
-        return local;
+        return {
+          ...local,
+          roles: payload.roles ?? (local.role ? [local.role] : []),
+          orgs:
+            payload.orgs ??
+            (local.organizationId ? [local.organizationId] : []),
+        };
       }
     } catch {
       // Local user record is optional data enrichment; token validity is decided by UMS RS256 signature.
@@ -53,7 +59,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       firstName: null,
       lastName: null,
       role: 'USER',
-      organizationId: '',
+      organizationId: payload.orgs?.[0] ?? '',
+      roles: payload.roles,
+      orgs: payload.orgs,
     };
   }
 }
