@@ -7,4 +7,6 @@ export interface AuthUser {
   lastName: string | null;
   role: $Enums.RoleName;
   organizationId: string;
+  roles?: string[];
+  orgs?: string[];
 }
