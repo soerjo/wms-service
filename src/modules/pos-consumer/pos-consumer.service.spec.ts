@@ -89,6 +89,21 @@ describe('PosConsumerService', () => {
     });
   });
 
+  describe('unknown event type', () => {
+    it('should throw BadRequestException for unknown event type', async () => {
+      mockPrismaService.processedEvent.findUnique.mockResolvedValueOnce(null);
+
+      await expect(
+        service.handleEvent({
+          eventId: 'evt-unknown',
+          eventType: 'UNKNOWN_EVENT' as unknown as 'ORDER_COMPLETED',
+          warehouseId: 'wh-1',
+          items: [],
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
+
   describe('ORDER_COMPLETED', () => {
     it('should allocate and deduct stock successfully', async () => {
       mockPrismaService.processedEvent.findUnique.mockResolvedValueOnce(null);
@@ -357,6 +372,77 @@ describe('PosConsumerService', () => {
       };
       expect(createCallArg.data.eventId).toBe('evt-refund-no-wh');
       expect(createCallArg.data.errorReason).toBe('WAREHOUSE_NOT_FOUND');
+    });
+
+    it('should use fallback active bin when condition bin is not found', async () => {
+      mockPrismaService.processedEvent.findUnique.mockResolvedValueOnce(null);
+      // Condition is DAMAGED -> looks for QUARANTINE first, returns null
+      mockTx.storageBin.findFirst.mockResolvedValueOnce(null);
+      // Fallback -> looks for ACTIVE bin, returns bin-active-fallback
+      mockTx.storageBin.findFirst.mockResolvedValueOnce({
+        id: 'bin-active-fallback',
+        status: 'ACTIVE',
+      });
+      mockInventoryService.recordStockMovement.mockResolvedValueOnce(1);
+      mockTx.processedEvent.create.mockResolvedValueOnce({});
+
+      const res = await service.handleEvent({
+        eventId: 'evt-refund-fallback',
+        eventType: 'ORDER_REFUNDED',
+        warehouseId: 'wh-1',
+        items: [
+          {
+            productId: 'prod-1',
+            sku: 'SKU-1',
+            quantity: 2,
+            condition: 'DAMAGED',
+          },
+        ],
+      });
+
+      expect(res).toEqual({
+        status: 'PROCESSED',
+        eventId: 'evt-refund-fallback',
+      });
+      expect(mockTx.storageBin.findFirst).toHaveBeenNthCalledWith(1, {
+        where: { warehouseId: 'wh-1', status: 'QUARANTINE' },
+      });
+      expect(mockTx.storageBin.findFirst).toHaveBeenNthCalledWith(2, {
+        where: { warehouseId: 'wh-1', status: 'ACTIVE' },
+      });
+      expect(mockInventoryService.recordStockMovement).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          warehouseId: 'wh-1',
+          binId: 'bin-active-fallback',
+          changeQuantity: 2,
+          referenceType: 'POS_REFUND',
+        }),
+      );
+    });
+
+    it('should throw BadRequestException when no suitable storage bin exists', async () => {
+      mockPrismaService.processedEvent.findUnique.mockResolvedValueOnce(null);
+      // Condition bin not found
+      mockTx.storageBin.findFirst.mockResolvedValueOnce(null);
+      // Fallback active bin also not found
+      mockTx.storageBin.findFirst.mockResolvedValueOnce(null);
+
+      await expect(
+        service.handleEvent({
+          eventId: 'evt-refund-no-bin',
+          eventType: 'ORDER_REFUNDED',
+          warehouseId: 'wh-1',
+          items: [
+            {
+              productId: 'prod-1',
+              sku: 'SKU-NO-BIN',
+              quantity: 1,
+              condition: 'DAMAGED',
+            },
+          ],
+        }),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });

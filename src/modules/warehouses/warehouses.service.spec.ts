@@ -45,12 +45,29 @@ describe('WarehousesService', () => {
     });
   });
 
+  it('should use default filters when calling findAll without arguments', async () => {
+    mockRepository.findAll.mockResolvedValueOnce([]);
+
+    await service.findAll();
+
+    expect(mockRepository.findAll).toHaveBeenCalledWith({});
+  });
+
   it('should scope findById by organizationId', async () => {
     mockRepository.findById.mockResolvedValueOnce({ id: 'wh-1' });
 
     await service.findById('wh-1', 'org-1');
 
     expect(mockRepository.findById).toHaveBeenCalledWith('wh-1', 'org-1');
+  });
+
+  it('should call findById without organizationId', async () => {
+    mockRepository.findById.mockResolvedValueOnce({ id: 'wh-1' });
+
+    const result = await service.findById('wh-1');
+
+    expect(mockRepository.findById).toHaveBeenCalledWith('wh-1', undefined);
+    expect(result).toEqual({ id: 'wh-1' });
   });
 
   it('should validate warehouse code within the organization scope', async () => {
@@ -106,5 +123,21 @@ describe('WarehousesService', () => {
       name: 'Renamed',
     });
     expect(result).toEqual({ id: 'wh-1', storeId: 'store-2' });
+  });
+
+  it('should update warehouse without organizationId', async () => {
+    mockRepository.findById.mockResolvedValueOnce({ id: 'wh-1' });
+    mockRepository.update.mockResolvedValueOnce({
+      id: 'wh-1',
+      name: 'Renamed',
+    });
+
+    const result = await service.update('wh-1', { name: 'Renamed' });
+
+    expect(mockRepository.findById).toHaveBeenCalledWith('wh-1', undefined);
+    expect(mockRepository.update).toHaveBeenCalledWith('wh-1', {
+      name: 'Renamed',
+    });
+    expect(result).toEqual({ id: 'wh-1', name: 'Renamed' });
   });
 });
