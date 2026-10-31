@@ -32,4 +32,14 @@ export class CreateWarehouseDto {
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
+
+  @ApiProperty({ example: 'org-uuid-1' })
+  @IsString()
+  @IsNotEmpty()
+  organizationId: string;
+
+  @ApiPropertyOptional({ example: 'store-uuid-1' })
+  @IsString()
+  @IsOptional()
+  storeId?: string;
 }

@@ -10,7 +10,9 @@ export interface PosOrderCompletedPayload {
   eventId: string;
   sourceService?: string;
   eventType: 'ORDER_COMPLETED';
-  warehouseId: string;
+  warehouseId?: string;
+  organizationId?: string;
+  storeId?: string;
   items: PosOrderItem[];
 }
 
@@ -28,7 +30,9 @@ export interface PosOrderRefundedPayload {
   eventId: string;
   sourceService?: string;
   eventType: 'ORDER_REFUNDED';
-  warehouseId: string;
+  warehouseId?: string;
+  organizationId?: string;
+  storeId?: string;
   items: PosOrderRefundedItem[];
 }
 

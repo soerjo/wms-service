@@ -75,42 +75,48 @@ model User {
   updatedAt             DateTime @updatedAt
   organizationId        String
 
-  organization          Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@map("users")
 }
 
 model Organization {
-  id          String   @id @default(uuid())
-  name        String
-  slug        String   @unique
-  logoUrl     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  logoUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  users       User[]
+  users      User[]
+  warehouses Warehouse[]
 
   @@map("organizations")
 }
 
 model Warehouse {
-  id        String        @id @default(uuid())
-  code      String        @unique
-  name      String
-  type      WarehouseType
-  address   String?
-  isActive  Boolean       @default(true)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  id             String        @id @default(uuid())
+  code           String        @unique
+  name           String
+  type           WarehouseType
+  address        String?
+  isActive       Boolean       @default(true)
+  organizationId String
+  storeId        String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
-  bins           StorageBin[]
-  productStocks  ProductStock[]
-  stockLedgers   StockLedger[]
+  organization     Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  bins             StorageBin[]
+  productStocks    ProductStock[]
+  stockLedgers     StockLedger[]
   inboundShipments InboundShipment[]
-  transfersOut   StockTransfer[] @relation("OriginWarehouse")
-  transfersIn    StockTransfer[] @relation("DestinationWarehouse")
-  adjustments    StockAdjustment[]
+  transfersOut     StockTransfer[]   @relation("OriginWarehouse")
+  transfersIn      StockTransfer[]   @relation("DestinationWarehouse")
+  adjustments      StockAdjustment[]
 
+  @@index([organizationId])
+  @@index([storeId])
   @@map("warehouses")
 }
 
@@ -124,9 +130,9 @@ model StorageBin {
   status      StorageBinStatus @default(ACTIVE)
   createdAt   DateTime         @default(now())
 
-  warehouse     Warehouse      @relation(fields: [warehouseId], references: [id])
-  productStocks ProductStock[]
-  stockLedgers  StockLedger[]
+  warehouse       Warehouse             @relation(fields: [warehouseId], references: [id])
+  productStocks   ProductStock[]
+  stockLedgers    StockLedger[]
   adjustmentItems StockAdjustmentItem[]
 
   @@unique([warehouseId, binCode])
@@ -134,16 +140,16 @@ model StorageBin {
 }
 
 model ProductStock {
-  id               String   @id @default(uuid())
+  id               String    @id @default(uuid())
   warehouseId      String
   binId            String
   productId        String
   sku              String
-  batchNumber      String   @default("-")
+  batchNumber      String    @default("-")
   expiryDate       DateTime?
-  quantityOnHand   Decimal  @db.Decimal(15, 3)
-  quantityReserved Decimal  @default(0) @db.Decimal(15, 3)
-  updatedAt        DateTime @updatedAt
+  quantityOnHand   Decimal   @db.Decimal(15, 3)
+  quantityReserved Decimal   @default(0) @db.Decimal(15, 3)
+  updatedAt        DateTime  @updatedAt
 
   warehouse Warehouse  @relation(fields: [warehouseId], references: [id])
   bin       StorageBin @relation(fields: [binId], references: [id])
@@ -183,7 +189,7 @@ model InboundShipment {
   receivedAt    DateTime?
   createdAt     DateTime              @default(now())
 
-  warehouse Warehouse            @relation(fields: [warehouseId], references: [id])
+  warehouse Warehouse             @relation(fields: [warehouseId], references: [id])
   items     InboundShipmentItem[]
 
   @@map("inbound_shipments")
@@ -205,14 +211,14 @@ model InboundShipmentItem {
 }
 
 model StockTransfer {
-  id                    String              @id @default(uuid())
-  transferNo            String              @unique
-  originWarehouseId     String
+  id                     String              @id @default(uuid())
+  transferNo             String              @unique
+  originWarehouseId      String
   destinationWarehouseId String
-  status                StockTransferStatus @default(DRAFT)
-  dispatchedAt          DateTime?
-  receivedAt            DateTime?
-  createdAt             DateTime            @default(now())
+  status                 StockTransferStatus @default(DRAFT)
+  dispatchedAt           DateTime?
+  receivedAt             DateTime?
+  createdAt              DateTime            @default(now())
 
   originWarehouse      Warehouse           @relation("OriginWarehouse", fields: [originWarehouseId], references: [id])
   destinationWarehouse Warehouse           @relation("DestinationWarehouse", fields: [destinationWarehouseId], references: [id])
@@ -222,12 +228,12 @@ model StockTransfer {
 }
 
 model StockTransferItem {
-  id          String   @id @default(uuid())
+  id          String  @id @default(uuid())
   transferId  String
   productId   String
   sku         String
-  batchNumber String   @default("-")
-  quantity    Decimal  @db.Decimal(15, 3)
+  batchNumber String  @default("-")
+  quantity    Decimal @db.Decimal(15, 3)
 
   transfer StockTransfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
 

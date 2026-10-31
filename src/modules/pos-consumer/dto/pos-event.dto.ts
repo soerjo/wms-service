@@ -87,10 +87,20 @@ export class PosEventDto {
   @IsEnum(['ORDER_COMPLETED', 'ORDER_REFUNDED'])
   eventType!: 'ORDER_COMPLETED' | 'ORDER_REFUNDED';
 
-  @ApiProperty({ example: 'wh-uuid-1' })
+  @ApiPropertyOptional({ example: 'wh-uuid-1' })
   @IsString()
-  @IsNotEmpty()
-  warehouseId!: string;
+  @IsOptional()
+  warehouseId?: string;
+
+  @ApiPropertyOptional({ example: 'org-uuid-1' })
+  @IsString()
+  @IsOptional()
+  organizationId?: string;
+
+  @ApiPropertyOptional({ example: 'store-uuid-1' })
+  @IsString()
+  @IsOptional()
+  storeId?: string;
 
   @ApiProperty({ type: [PosOrderItemDto] })
   @IsArray()

@@ -14,30 +14,25 @@ export class WarehousesService {
     return this.warehousesRepository.findAll(filters);
   }
 
-  async findById(id: string) {
-    return this.warehousesRepository.findById(id);
+  async findById(id: string, organizationId?: string) {
+    return this.warehousesRepository.findById(id, organizationId);
   }
 
   async create(dto: CreateWarehouseDto) {
-    const existing = await this.warehousesRepository.findByCode(dto.code);
+    const existing = await this.warehousesRepository.findByCode(
+      dto.code,
+      dto.organizationId,
+    );
     if (existing) {
       throw new BadRequestException(
-        `Warehouse with code ${dto.code} already exists`,
+        `Warehouse with code ${dto.code} already exists in organization ${dto.organizationId}`,
       );
     }
     return this.warehousesRepository.create(dto);
   }
 
-  async update(id: string, dto: UpdateWarehouseDto) {
-    await this.warehousesRepository.findById(id);
-    if (dto.code) {
-      const existing = await this.warehousesRepository.findByCode(dto.code);
-      if (existing && existing.id !== id) {
-        throw new BadRequestException(
-          `Warehouse with code ${dto.code} already exists`,
-        );
-      }
-    }
+  async update(id: string, dto: UpdateWarehouseDto, organizationId?: string) {
+    await this.warehousesRepository.findById(id, organizationId);
     return this.warehousesRepository.update(id, dto);
   }
 }

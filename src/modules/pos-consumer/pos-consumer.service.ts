@@ -2,7 +2,12 @@ import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { InventoryService } from '../inventory/inventory.service.js';
-import { PosEventPayload } from './interfaces/pos-event.interface.js';
+import { WarehousesRepository } from '../warehouses/warehouses.repository.js';
+import {
+  PosEventPayload,
+  PosOrderCompletedPayload,
+  PosOrderRefundedPayload,
+} from './interfaces/pos-event.interface.js';
 
 @Injectable()
 export class PosConsumerService {
@@ -11,6 +16,7 @@ export class PosConsumerService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly inventoryService: InventoryService,
+    private readonly warehousesRepository: WarehousesRepository,
   ) {}
 
   async handleEvent(payload: PosEventPayload) {
@@ -36,8 +42,76 @@ export class PosConsumerService {
     }
   }
 
-  private async handleOrderCompleted(payload: PosEventPayload) {
-    const { eventId, warehouseId, items } = payload;
+  /**
+   * Resolve the target warehouse for a POS event. Prefer an explicit
+   * warehouseId (optionally scoped to an organization); otherwise fall back to
+   * an active warehouse mapped to the event's storeId.
+   */
+  private async resolveWarehouseId(
+    payload: PosEventPayload,
+  ): Promise<string | null> {
+    const { warehouseId, storeId, organizationId } = payload;
+
+    if (warehouseId) {
+      const warehouse = await this.warehousesRepository.findByIdOrNull(
+        warehouseId,
+        organizationId,
+      );
+      if (warehouse) {
+        return warehouse.id;
+      }
+    }
+
+    if (storeId) {
+      const warehouse = await this.warehousesRepository.findByStoreId(
+        storeId,
+        organizationId,
+        true,
+      );
+      if (warehouse) {
+        return warehouse.id;
+      }
+    }
+
+    return null;
+  }
+
+  private async routeToDeadLetter(payload: PosEventPayload) {
+    const { eventId } = payload;
+    this.logger.warn(
+      `No warehouse found for event ${eventId} (warehouseId=${payload.warehouseId ?? '-'}, storeId=${payload.storeId ?? '-'}, organizationId=${payload.organizationId ?? '-'}). Routing to Dead Letter Queue.`,
+    );
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.deadLetterEvent.create({
+        data: {
+          eventId,
+          eventType: payload.eventType,
+          payload: payload as unknown as Prisma.InputJsonValue,
+          errorReason: 'WAREHOUSE_NOT_FOUND',
+          status: 'UNRESOLVED',
+        },
+      });
+
+      await tx.processedEvent.create({
+        data: {
+          eventId,
+          sourceService: payload.sourceService || 'POS',
+          eventType: payload.eventType,
+        },
+      });
+    });
+
+    return { status: 'PROCESSED', eventId };
+  }
+
+  private async handleOrderCompleted(payload: PosOrderCompletedPayload) {
+    const { eventId, items } = payload;
+
+    const warehouseId = await this.resolveWarehouseId(payload);
+    if (!warehouseId) {
+      return this.routeToDeadLetter(payload);
+    }
 
     await this.prisma.$transaction(async (tx) => {
       for (const item of items) {
@@ -98,15 +172,20 @@ export class PosConsumerService {
     return { status: 'PROCESSED', eventId };
   }
 
-  private async handleOrderRefunded(payload: PosEventPayload) {
-    const { eventId, warehouseId, items } = payload;
+  private async handleOrderRefunded(payload: PosOrderRefundedPayload) {
+    const { eventId, items } = payload;
+
+    const warehouseId = await this.resolveWarehouseId(payload);
+    if (!warehouseId) {
+      return this.routeToDeadLetter(payload);
+    }
 
     await this.prisma.$transaction(async (tx) => {
       for (const item of items) {
-        let targetBinId = 'binId' in item ? item.binId : undefined;
+        let targetBinId = item.binId;
 
         if (!targetBinId) {
-          const condition = 'condition' in item ? item.condition : 'SELLABLE';
+          const condition = item.condition;
           const targetStatus =
             condition === 'DAMAGED' ? 'QUARANTINE' : 'ACTIVE';
 
@@ -136,7 +215,7 @@ export class PosConsumerService {
           }
         }
 
-        const condition = 'condition' in item ? item.condition : 'SELLABLE';
+        const condition = item.condition;
         const notes = `POS Order Refund (${condition}): ${eventId}`;
 
         await this.inventoryService.recordStockMovement(tx, {
